@@ -10,6 +10,7 @@
 
 const uint8_t* SensorSim_GetImagePtr(void);
 
+void SensorSim_NextScenario(void);
 void SensorSim_InitTestbench(void);
 uint8_t SensorSim_CaptureDynamicFrame(uint8_t *out_frame_buffer);
 

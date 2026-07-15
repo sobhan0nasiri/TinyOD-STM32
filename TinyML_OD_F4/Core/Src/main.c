@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "crc.h"
+#include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -28,8 +29,11 @@
 #include "risk_calc.h"
 #include "fsm_controller.h"
 #include "sensor_sim.h"
+
 #include <stdio.h>
 #include <string.h>
+
+#include "ili9341.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +59,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void Update_GLCD_With_Frame(const uint8_t *frame_buffer);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -63,6 +67,7 @@ void SystemClock_Config(void);
 #define TX_BUFFER_SIZE 300
 char tx_buffer[TX_BUFFER_SIZE];
 volatile uint8_t tx_flag = 1;
+uint32_t tx_flag_timeout = 0;
 
 VehicleState_t my_vehicle_state = {0};
 uint8_t probability = 0;
@@ -101,10 +106,14 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_CRC_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 	
   FSM_Init();
-
+	
+	ILI9341_Init();
+  ILI9341_FillScreen(ILI9341_BLACK);
+	
   if (InferEngine_Init()) 
   {
       char err_msg[] = "AI Engine Init Failed!\r\n";
@@ -124,11 +133,39 @@ int main(void)
 		probability = prob;
 
 		FSM_Update(probability, &my_vehicle_state);
+
+		Update_GLCD_With_Frame(live_camera_frame);
 		
-		if (tx_flag) 
+		SystemState_t currentState = FSM_GetState();
+    if (currentState == STATE_NORMAL) 
+    {
+       ILI9341_WriteString(20, 20, "State= Safe      ", ILI9341_GREEN, ILI9341_BLACK);
+    } 
+    else if (currentState == STATE_WARNING) 
+    {
+       ILI9341_WriteString(20, 20, "State= Warning   ", ILI9341_YELLOW, ILI9341_BLACK);
+    } 
+    else 
+    {
+       ILI9341_WriteString(20, 20, "State= BRAKING!  ", ILI9341_RED, ILI9341_BLACK);
+    }
+		
+		char lcd_buf[32];
+      
+      snprintf(lcd_buf, sizeof(lcd_buf), "Prob : %d%%     ", probability);
+      ILI9341_WriteString(20, 35, lcd_buf, ILI9341_WHITE, ILI9341_BLACK);
+      
+      if (my_vehicle_state.ttc_ms > 0 && my_vehicle_state.ttc_ms < 9999) {
+          snprintf(lcd_buf, sizeof(lcd_buf), "TTC  : %d ms   ", my_vehicle_state.ttc_ms);
+          ILI9341_WriteString(20, 50, lcd_buf, ILI9341_CYAN, ILI9341_BLACK);
+      } else {
+          ILI9341_WriteString(20, 50, "TTC  : Safe/None  ", ILI9341_DARKGREY, ILI9341_BLACK);
+      }
+		
+		if (tx_flag || (HAL_GetTick() - tx_flag_timeout > 1500)) 
     {
         tx_flag = 0;
-			
+				tx_flag_timeout = HAL_GetTick();
 				int offset = 0;
         
 				if (result_buffer[0] != '\0')
@@ -146,14 +183,13 @@ int main(void)
 			
          offset += snprintf(tx_buffer + offset,
                              (size_t)(TX_BUFFER_SIZE - offset),
-                             "Prob: %d%% | TTC: %lu ms | State: %d\r\n",
-                             probability,
-                             (unsigned long)my_vehicle_state.ttc_ms,
+                             "State: %d\r\n",
                              FSM_GetState());
 				 
         HAL_UART_Transmit_IT(&huart2, (uint8_t*)tx_buffer, strlen(tx_buffer));
     }
-		HAL_Delay(1500);
+		
+		HAL_Delay(250);
 		
     /* USER CODE END WHILE */
 
@@ -204,6 +240,41 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+#define COLOR_BLACK  0x0000
+#define COLOR_RED    0xF800
+
+void Update_GLCD_With_Frame(const uint8_t *frame_buffer) 
+{
+    uint16_t offset_lcd_x = (240 - 96) / 2;
+    uint16_t offset_lcd_y = (320 - 96) / 2;
+    
+    for(uint16_t y = 0; y < 96; y++) 
+    {
+        for(uint16_t x = 0; x < 96; x++) 
+        {
+            uint16_t array_index = (y * 96) + x;
+            uint8_t pixel_val = frame_buffer[array_index];
+
+            uint16_t r = (pixel_val >> 3) & 0x1F;
+            uint16_t g = (pixel_val >> 2) & 0x3F;
+            uint16_t b = (pixel_val >> 3) & 0x1F;
+            
+            uint16_t final_color = (r << 11) | (g << 5) | b;
+            
+            ILI9341_DrawPixel(x + offset_lcd_x, y + offset_lcd_y, final_color);
+        }
+    }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == B1_Pin_Pin) 
+    {
+        SensorSim_NextScenario();
+    }
+}
+
 void UART_Print(const char *msg) {
     HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 }

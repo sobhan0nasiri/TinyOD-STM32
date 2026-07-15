@@ -75,6 +75,7 @@ int8_t InferEngine_Init(void)
              params.map_weights.buffer[0].size);
     UART_Print(result_buffer);
 		HAL_Delay(1000);
+		
     if (ai_ob_model_init(ob_model_network, &params)) {
         err = ai_ob_model_get_error(ob_model_network);
         

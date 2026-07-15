@@ -1,6 +1,6 @@
 ST Edge AI Core v2.0.0-20049
-Created date          : 2026-07-05 12:54:18
-Parameters            : generate --target stm32f4 --name ob_model -m D:/CreateProject/TinyML_Obstacle Detection/Ai_Model/obstacle_model.onnx --compression high --verbosity 1 -O ram --workspace C:/Users/ayson/AppData/Local/Temp/mxAI_workspace87706610943004811304420571000698 --output C:/Users/ayson/.stm32cubemx/ob_model_output
+Created date          : 2026-07-14 19:56:24
+Parameters            : generate --target stm32f4 --name ob_model -m D:/CreateProject/TinyML_Obstacle Detection/Ai_Model/obstacle_model.onnx --compression high --verbosity 1 -O ram --workspace C:/Users/ayson/AppData/Local/Temp/mxAI_workspace51674669043007627501566895366791 --output C:/Users/ayson/.stm32cubemx/ob_model_output
 
 Exec/report summary (generate)
 ----------------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ compression        :   high
 options            :   allocate-inputs, allocate-outputs                                                  
 optimization       :   ram                                                                                
 target/series      :   stm32f4                                                                            
-workspace dir      :   C:\Users\ayson\AppData\Local\Temp\mxAI_workspace87706610943004811304420571000698   
+workspace dir      :   C:\Users\ayson\AppData\Local\Temp\mxAI_workspace51674669043007627501566895366791   
 output dir         :   C:\Users\ayson\.stm32cubemx\ob_model_output                                        
 model_fmt          :   float                                                                              
 model_name         :   obstacle_model                                                                     

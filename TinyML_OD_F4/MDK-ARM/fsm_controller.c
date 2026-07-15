@@ -19,6 +19,16 @@ void FSM_Update(uint8_t obstacle_prob, VehicleState_t *v_state) {
             break;
 
         case STATE_WARNING:
+            if (obstacle_prob <= 67) {
+                v_state->distance_m = 18;
+            } 
+            else if (obstacle_prob <= 79) {
+                v_state->distance_m = 10;
+            } 
+            else {
+                v_state->distance_m = 4;
+            }
+
             RiskCalc_CalculateTTC(v_state);
             
             if (v_state->ttc_ms < 1200) {

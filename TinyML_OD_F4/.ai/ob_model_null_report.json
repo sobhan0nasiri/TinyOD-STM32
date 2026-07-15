@@ -1,7 +1,7 @@
 {
     "_allocate_inputs": 4,
     "_allocate_outputs": 4,
-    "cli_parameters": "generate --target stm32f4 --name ob_model -m D:/CreateProject/TinyML_Obstacle Detection/Ai_Model/obstacle_model.onnx --compression high --verbosity 1 -O ram --workspace C:/Users/ayson/AppData/Local/Temp/mxAI_workspace87706610943004811304420571000698 --output C:/Users/ayson/.stm32cubemx/ob_model_output",
+    "cli_parameters": "generate --target stm32f4 --name ob_model -m D:/CreateProject/TinyML_Obstacle Detection/Ai_Model/obstacle_model.onnx --compression high --verbosity 1 -O ram --workspace C:/Users/ayson/AppData/Local/Temp/mxAI_workspace51674669043007627501566895366791 --output C:/Users/ayson/.stm32cubemx/ob_model_output",
     "cli_version": {
         "extra": "20049",
         "major": 2,
@@ -11,7 +11,7 @@
     "cli_version_str": "2.0.0-20049",
     "code_size": 0,
     "compression": [],
-    "date_time": "2026-07-05T12:54:17+0330",
+    "date_time": "2026-07-14T19:56:22+0330",
     "error": 0,
     "error_str": [],
     "exec_cmd": "generate",

@@ -1,4 +1,4 @@
-# TinyBrake-STM32 🛑⚡
+# TinyBrake-STM32
 **TinyML Obstacle Detection & Emergency Braking System on STM32F401VE**
 
 [![Platform](https://img.shields.io/badge/platform-STM32F401VE-blue)](https://www.st.com/en/microcontrollers-microprocessors/stm32f401ve.html)
