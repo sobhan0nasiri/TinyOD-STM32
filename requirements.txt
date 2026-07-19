@@ -1,0 +1,5 @@
+# Core dependencies for synthetic dataset generation, training, and ONNX export
+numpy
+Pillow
+torch
+torchvision
